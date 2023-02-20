@@ -1,0 +1,195 @@
+
+<!-- Design from: https://static.collectui.com/shots/3671744/musicloud-revolutionary-app-for-music-streaming-large -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Music player</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="./assets/css/style.css">
+        
+    </head>
+    <body>
+        <div class="player">
+            <!-- Dashboard -->
+            <div class="dashboard">
+                <!-- Header -->
+            <header>
+                <h4>Now playing:</h4>
+                <h2>String 57th & 9th</h2>
+            </header>
+        
+            <!-- CD -->
+            <div class="cd">
+              <div class="cd-thumb" style="background-image: url('./assets/img/img1.jpg')">
+              </div>
+            </div>
+            
+            <!-- Control -->
+            <div class="control">
+              <div class="btn btn-repeat">
+                  <i class="fas fa-redo"></i>
+                </div>
+                <div class="btn btn-prev">
+                    <i class="fas fa-step-backward"></i>
+                </div>
+                <div class="btn btn-toggle-play">
+                <i class="fas fa-pause icon-pause"></i>
+                <i class="fas fa-play icon-play"></i>
+            </div>
+              <div class="btn btn-next">
+                <i class="fas fa-step-forward"></i>
+              </div>
+              <div class="btn btn-random">
+                  <i class="fas fa-random"></i>
+                </div>
+            </div>
+            
+            <input id="progress" class="progress" type="range" value="0" step="1" min="0" max="100">
+            
+            <audio id="audio" src=""></audio>
+        </div>
+        
+        <!-- Playlist -->
+        <div class="playlist">
+
+
+        </div>
+    
+    </div>
+        
+<link rel="stylesheet" href="">
+        <script> 
+        /**
+         * 1. Reander song.
+         * 2. Scroll Top.
+         * 3. Play/ pause/ seek
+         * 4. CD Rotate.
+         * 5. Next/ previous.
+         * 6. Random.
+         * 7. Next/ repeat when ended.
+         * 8. Active song.
+         * 9. Scroll active song into view.
+         * 10. Play song when clicked.
+        */
+
+        const $ = document.querySelector.bind(document);
+        const $$ = document.querySelectorAll.bind(document);
+
+        const player =$(".player");
+        const heading = $("header h2");
+        const cdThumb = $(".cd-thumb");
+        const audio = $("#audio");
+        const cd = $('.cd')
+        const playBtn = $(".btn.btn-toggle-play");
+
+        const app = {
+            currentIndex: 1,
+            isPlaying: false,
+            songs: [
+            {
+                name: 'Nevada',
+                singer: 'Vicetone',
+                path: './assets/music/Vicetone-Nevada-Remix.mp3',
+                image: './assets/img/img1.jpg'
+                
+            },
+            {
+                name: 'Nắng ấm xa dần',
+                singer: 'Sơn Tùng',
+                path: './assets/music/Nang-Am-Xa-Dan-Team-Son-Tung-MTP-Slim-V-Son-Tung-M-TP.mp3',
+                image: './assets/img/img2.jpg'
+            },
+            {
+                name: 'Em của ngày hôm qua',
+                singer: 'Sơn Tùng',
+                path: './assets/music/EmCuaNgayHomQua-SonTungMTP-2882720.mp3',
+                image: './assets/img/img3.jpg'
+                
+            },
+            {
+                name: 'Lạc trôi',
+                singer: 'Sơn Tùng',
+                path: './assets/music/LacTroiMasewRemix-SonTungMTP-4732354.mp3',
+                image: './assets/img/img4.jpg'
+                
+            },
+            ],
+
+            render: function(){
+                const html = this.songs.map(song => {
+                    return `
+                    <div class="song">
+                        <div class="thumb" style="background-image: url('${song.image}')">
+                        </div>
+                        <div class="body">
+                            <h3 class="title">${song.name}</h3>
+                            <p class="author">${song.singer}</p>
+                        </div>
+                        <div class="option">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                    </div>
+                    `
+                })
+                $('.playlist').innerHTML = html.join('');
+            },
+
+            handleEvent: function(){
+                const _this = this;
+                const cdWidth = cd.offsetWidth;
+
+
+                document.onscroll = function(){
+                    const scrollTop = window.scrollY || document.documentEvent.scrollTop;
+                    const newWidth = cdWidth - scrollTop;
+                    cd.style.width = newWidth > 0 ? newWidth + 'px' : 0 + 'px';
+                    cd.style.opacity = newWidth / cdWidth;
+                }
+
+                playBtn.onclick = function(){
+                    if (_this.isPlaying){
+                        _this.isPlaying = false;
+                        audio.pause();
+                        player.classList.remove('playing');
+                    } else {
+
+                        _this.isPlaying = true;
+                        audio.play();
+                        player.classList.add('playing');
+                    }
+
+                }
+            },
+
+            defineProperties: function(){
+                Object.defineProperty(this, 'currentSong', {
+                    get: function(){
+                        return this.songs[this.currentIndex];
+                    }
+                })
+            },
+            loadCurrentSong: function(){
+
+                heading.textContent =this.currentSong.name;
+                cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
+                audio.src = this.currentSong.path;
+            },
+            start: function(){
+                this.defineProperties();
+
+                this.handleEvent();
+
+                this.loadCurrentSong();
+
+                this.render();
+            }
+        }
+
+        app.start();
+        </script>
+    </body>
+</html>
