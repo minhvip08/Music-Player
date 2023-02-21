@@ -85,6 +85,7 @@
         const audio = $("#audio");
         const cd = $('.cd')
         const playBtn = $(".btn.btn-toggle-play");
+        const progress = $("#progress");
 
         const app = {
             currentIndex: 1,
@@ -143,25 +144,60 @@
                 const cdWidth = cd.offsetWidth;
 
 
+                // Rotate CD:
+                const cdThumbAnimate = cdThumb.animate([
+                    {transform: 'rotate(360deg)'}
+                ], {
+                    duration:5000,
+                    iterations: Infinity,
+                })
+
+                cdThumbAnimate.pause();
+
                 document.onscroll = function(){
                     const scrollTop = window.scrollY || document.documentEvent.scrollTop;
                     const newWidth = cdWidth - scrollTop;
                     cd.style.width = newWidth > 0 ? newWidth + 'px' : 0 + 'px';
-                    cd.style.opacity = newWidth / cdWidth;
+                    cd.style.opacity = newWidth > 0 ? newWidth / cdWidth : 0;
                 }
 
+                // When we click button 
                 playBtn.onclick = function(){
                     if (_this.isPlaying){
-                        _this.isPlaying = false;
                         audio.pause();
-                        player.classList.remove('playing');
                     } else {
-
-                        _this.isPlaying = true;
                         audio.play();
-                        player.classList.add('playing');
                     }
 
+                }
+
+                // When song play 
+                audio.onplay = function(){
+                    _this.isPlaying = true;
+                    player.classList.add('playing');
+                    cdThumbAnimate.play();
+                }
+
+                // when song pause
+                audio.onpause = function(){
+                    _this.isPlaying = false;
+                    player.classList.remove('playing');
+                    cdThumbAnimate.pause();
+
+                }
+
+                // When song is in progress
+                audio.ontimeupdate = function(){
+                    if (audio.duration){
+                        const progressPercent = Math.floor(audio.currentTime / audio.duration * 100);
+                        progress.value = progressPercent;
+                    }
+                }
+
+                // When song is on change:
+                progress.oninput = function(e){
+                    const seekTime = audio.duration * e.target.value / 100;
+                    audio.currentTime = seekTime;
                 }
             },
 

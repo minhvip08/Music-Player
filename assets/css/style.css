@@ -24,6 +24,9 @@
     margin: 0 auto;
   }
   
+  .player .icon-play{
+    display: inline-block;
+  }
   .player .icon-pause {
     display: none;
   }
