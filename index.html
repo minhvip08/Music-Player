@@ -89,11 +89,13 @@
         const nextBtn = $(".btn.btn-next");
         const prevBtn = $(".btn.btn-prev"); 
         const randomBtn = $(".btn.btn-random");
+        const repeatBtn = $(".btn.btn-repeat");
 
         const app = {
             currentIndex: 1,
             isPlaying: false,
             isRandom: false,
+            isRepeat: false,
             songs: [
             {
                 name: 'Nevada',
@@ -125,9 +127,9 @@
             ],
 
             render: function(){
-                const html = this.songs.map(song => {
+                const html = this.songs.map((song, index) => {
                     return `
-                    <div class="song">
+                    <div class="song ${index === this.currentIndex ? 'active' : ''}">
                         <div class="thumb" style="background-image: url('${song.image}')">
                         </div>
                         <div class="body">
@@ -136,7 +138,7 @@
                         </div>
                         <div class="option">
                             <i class="fas fa-ellipsis-h"></i>
-                        </div>
+                        </div> 
                     </div>
                     `
                 })
@@ -213,6 +215,7 @@
                         _this.nextSong();
                     }
                     audio.play();
+                    _this.render();
                 }
 
                 prevBtn.onclick = function(){
@@ -221,7 +224,9 @@
                     } else {
                         _this.prevSong();      
                     }
-                    audio.play();                    
+                    audio.play();       
+                    _this.render();
+
                 }
 
                 //When click random Button
@@ -233,9 +238,22 @@
 
                 // When song ended.
                 audio.onended = function(){
-                    setTimeout(() => {
-                        nextBtn.click();               
-                    }, 1000)
+                    if (_this.isRepeat){
+                        setTimeout(() => {
+                            audio.play();
+                        }, 1000)
+                    }
+                    else {
+                        setTimeout(() => {
+                            nextBtn.click();               
+                        }, 1000)
+                    }
+                }
+
+                //When repeat
+                repeatBtn.onclick = function(){
+                    _this.isRepeat = !_this.isRepeat;
+                    repeatBtn.classList.toggle('active', _this.isRepeat)
                 }
             },
 
