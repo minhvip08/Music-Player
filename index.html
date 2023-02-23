@@ -86,10 +86,14 @@
         const cd = $('.cd')
         const playBtn = $(".btn.btn-toggle-play");
         const progress = $("#progress");
+        const nextBtn = $(".btn.btn-next");
+        const prevBtn = $(".btn.btn-prev"); 
+        const randomBtn = $(".btn.btn-random");
 
         const app = {
             currentIndex: 1,
             isPlaying: false,
+            isRandom: false,
             songs: [
             {
                 name: 'Nevada',
@@ -198,6 +202,40 @@
                 progress.oninput = function(e){
                     const seekTime = audio.duration * e.target.value / 100;
                     audio.currentTime = seekTime;
+                    
+                }
+
+                // When song is next to play
+                nextBtn.onclick = function(){
+                    if (_this.isRandom){
+                        _this.playRandomSong();
+                    } else {
+                        _this.nextSong();
+                    }
+                    audio.play();
+                }
+
+                prevBtn.onclick = function(){
+                    if (_this.isRandom){
+                        _this.playRandomSong();
+                    } else {
+                        _this.prevSong();      
+                    }
+                    audio.play();                    
+                }
+
+                //When click random Button
+                randomBtn.onclick = function(){
+                    _this.isRandom =!_this.isRandom;
+                    randomBtn.classList.toggle('active', _this.isRandom);
+
+                }
+
+                // When song ended.
+                audio.onended = function(){
+                    setTimeout(() => {
+                        nextBtn.click();               
+                    }, 1000)
                 }
             },
 
@@ -208,12 +246,39 @@
                     }
                 })
             },
-            loadCurrentSong: function(){
 
+            loadCurrentSong: function(){
                 heading.textContent =this.currentSong.name;
                 cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
                 audio.src = this.currentSong.path;
             },
+
+            nextSong: function(){
+                this.currentIndex++;
+                if (this.currentIndex >= this.songs.length){
+                    this.currentIndex = 0;
+                }
+                this.loadCurrentSong();
+            },
+
+            prevSong: function(){
+                this.currentIndex--;
+                if (this.currentIndex < 0){
+                    this.currentIndex = this.songs.length - 1;
+                }
+                this.loadCurrentSong()
+            },
+
+            playRandomSong: function(){
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random()*this.songs.length);
+                } while (newIndex === this.currentIndex)
+                
+                this.currentIndex = newIndex;
+                this.loadCurrentSong();
+            },
+
             start: function(){
                 this.defineProperties();
 
